@@ -1,0 +1,5 @@
+.DS_Store
+.claude/
+
+# Private notes, not part of the website
+job-search-strategy.md

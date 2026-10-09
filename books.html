@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookshelf | Zaafir Mohamed</title>
+    <meta name="description" content="Book recommendations from Zaafir Mohamed on psychology, persuasion, and how people think.">
+    <meta name="author" content="Zaafir Mohamed">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Bookshelf | Zaafir Mohamed">
+    <meta property="og:description" content="Book recommendations on psychology, persuasion, and how people think.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://zafmohamed.com/books.html">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/styles.css">
+    <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<nav id="navbar" class="navbar" aria-label="Primary navigation">
+    <a href="index.html" class="nav-logo">Zaafir Mohamed</a>
+    <div class="nav-links">
+        <a href="index.html#about">About</a>
+        <a href="index.html#experience">Experience</a>
+        <a href="books.html" aria-current="page">Bookshelf</a>
+        <a href="resume.pdf" target="_blank" rel="noopener">Resume</a>
+        <a href="index.html#contact" class="cta-link">Get in Touch</a>
+    </div>
+</nav>
+
+<main id="main">
+    <section class="section page-header">
+        <div class="fade-up">
+            <p class="eyebrow">Bookshelf</p>
+            <h1 class="section-title">Books worth reading.</h1>
+            <p class="section-desc">The books that shaped how I think about people, persuasion, and work, each with a short note on why I recommend it.</p>
+        </div>
+    </section>
+
+    <section class="section" aria-label="Book recommendations">
+        <div id="book-list"></div>
+        <p id="book-empty" class="empty-state" hidden>Recommendations coming soon.</p>
+    </section>
+</main>
+
+<footer class="footer">
+    <p>&copy; <span data-year>2026</span> Zaafir Mohamed · Toronto</p>
+</footer>
+
+<script src="js/data/books.js"></script>
+<script src="js/bookshelf.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
