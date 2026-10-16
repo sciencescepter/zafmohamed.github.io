@@ -2,7 +2,7 @@
 //
 // To add a book, copy a line into the BOOKS list and edit it:
 //
-//   { title: 'Book Title', author: 'Author Name', category: 'Psychology & Persuasion' },
+//   { title: 'Book Title', author: 'Author Name', category: 'Psychology' },
 //
 // Optional extras:
 //   favourite: true                                  adds a "Favourite" badge
@@ -13,7 +13,7 @@
 // Categories appear on the page in this order. Empty ones are hidden, and a
 // category used in BOOKS but missing here is added at the end.
 const CATEGORIES = [
-    'Psychology & Persuasion',
+    'Psychology',
     'Philosophy',
     'Probability & Decision-Making',
     'Business & Investing',
@@ -26,10 +26,11 @@ const CATEGORIES = [
 ];
 
 const BOOKS = [
-    // Psychology & Persuasion
-    { title: 'Thinking, Fast and Slow', author: 'Daniel Kahneman', category: 'Psychology & Persuasion' },
-    { title: 'Influence', author: 'Robert Cialdini', category: 'Psychology & Persuasion' },
-    { title: 'How to Win Friends and Influence People', author: 'Dale Carnegie', category: 'Psychology & Persuasion' },
+    // Psychology
+    { title: 'Thinking, Fast and Slow', author: 'Daniel Kahneman', category: 'Psychology' },
+    { title: 'Predictably Irrational', author: 'Dan Ariely', category: 'Psychology' },
+    { title: 'Influence', author: 'Robert Cialdini', category: 'Psychology' },
+    { title: 'How to Win Friends and Influence People', author: 'Dale Carnegie', category: 'Psychology' },
 
     // Philosophy
     { title: 'Freedom from the Known', author: 'J. Krishnamurti', category: 'Philosophy' },
