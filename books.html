@@ -17,6 +17,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Blackletter for the logo only; text=ZM downloads just those two letters -->
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&text=ZM&display=block" rel="stylesheet">
 
     <link rel="stylesheet" href="css/styles.css">
     <script>document.documentElement.classList.add('js');</script>
@@ -26,7 +28,19 @@
 <a href="#main" class="skip-link">Skip to main content</a>
 
 <nav id="navbar" class="navbar" aria-label="Primary navigation">
-    <a href="index.html" class="nav-logo">Zaafir Mohamed</a>
+    <a href="index.html" class="nav-logo" aria-label="Zaafir Mohamed, home">
+        <svg viewBox="0 0 108 62" aria-hidden="true">
+            <g class="nav-logo-guides">
+                <line x1="6" y1="31" x2="102" y2="31"/>
+                <line x1="30" y1="4" x2="30" y2="58"/>
+                <line x1="78" y1="4" x2="78" y2="58"/>
+            </g>
+            <rect x="44.5" y="28.5" width="5" height="5" transform="rotate(45 47 31)"/>
+            <rect x="52.5" y="28" width="6" height="6" transform="rotate(45 55.5 31)"/>
+            <text x="30" y="47" text-anchor="middle">Z</text>
+            <text x="78" y="47" text-anchor="middle">M</text>
+        </svg>
+    </a>
     <div class="nav-links">
         <a href="index.html#about">About</a>
         <a href="index.html#experience">Experience</a>

@@ -18,6 +18,7 @@
 
     --font-serif: 'DM Serif Display', serif;
     --font-sans: 'Outfit', sans-serif;
+    --font-blackletter: 'Pirata One', 'Old English Text MT', serif;
 
     --radius-sm: 14px;
     --radius-md: 20px;
@@ -90,12 +91,27 @@ body {
 
 .navbar.scrolled { border-bottom-color: var(--border); }
 
+/* Z··M monogram, styled after the Chasing Ingenuity logo */
 .nav-logo {
-    font-family: var(--font-serif);
-    font-size: 1.35rem;
+    display: block;
     color: var(--text);
-    text-decoration: none;
-    letter-spacing: -0.02em;
+    line-height: 0;
+}
+
+.nav-logo svg { height: 40px; width: auto; overflow: visible; }
+
+.nav-logo text {
+    font-family: var(--font-blackletter);
+    font-size: 46px;
+    fill: currentColor;
+}
+
+.nav-logo rect { fill: currentColor; }
+
+.nav-logo-guides line {
+    stroke: currentColor;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
 }
 
 .nav-links { display: flex; gap: 2rem; align-items: center; }
