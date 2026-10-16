@@ -177,14 +177,35 @@ body {
 
 .hero {
     min-height: 100vh;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
     align-items: center;
+    gap: 4rem;
     padding: 8rem var(--gutter) 4rem;
     max-width: var(--max-width);
     margin: 0 auto;
 }
 
-.hero-content { max-width: 800px; }
+.hero h1 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+}
+
+/* Open-book line drawing beside the name */
+.hero-art {
+    width: 100%;
+    max-width: 440px;
+    justify-self: end;
+    color: var(--text);
+}
+
+.hero-art-page { fill: var(--surface); }
+.hero-art-text { stroke: var(--muted); stroke-width: 1.25; }
+.hero-art-ribbon { fill: var(--text); }
 
 .eyebrow {
     font-size: 0.75rem;
@@ -194,32 +215,6 @@ body {
     color: var(--muted);
     margin-bottom: 1rem;
 }
-
-.hero .eyebrow {
-    font-size: 0.8rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.hero .eyebrow::before {
-    content: '';
-    width: 2rem;
-    height: 2px;
-    background: var(--muted);
-}
-
-.hero h1 {
-    font-family: var(--font-serif);
-    font-weight: 400;
-    font-size: clamp(2.8rem, 6vw, 5rem);
-    line-height: 1.08;
-    letter-spacing: -0.03em;
-    margin-bottom: 1.75rem;
-}
-
-.hero h1 em { font-style: italic; }
 
 .hero-desc {
     font-size: 1.15rem;
@@ -560,7 +555,13 @@ body {
     .nav-links { gap: 1rem; }
     .nav-links a:not(.cta-link) { display: none; }
 
-    .hero { padding: 7rem var(--gutter) 3rem; }
+    .hero {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        min-height: auto;
+        padding: 8rem var(--gutter) 4rem;
+    }
+    .hero-art { max-width: 280px; justify-self: start; }
     .section { padding: 4rem var(--gutter); }
     .page-header { padding-top: 8rem; padding-bottom: 0; }
 
