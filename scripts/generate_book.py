@@ -14,7 +14,7 @@ from pathlib import Path
 
 # ---- View ----------------------------------------------------------------
 ELEV = math.radians(40)   # camera angle above the table
-YAW = math.radians(14)    # book rotated on the table; right side recedes
+YAW = math.radians(4)     # book rotated on the table; spine leans slightly left
 DIST = 5.0                # camera distance; smaller = stronger perspective
 SCALE = 260               # world units -> svg px
 
@@ -23,8 +23,9 @@ W, D = 1.0, 1.4           # page width, page height
 COVER = 0.04              # cover overhang past the pages
 COVER_T = 0.03            # cover board thickness
 BLOCK = 0.13              # page block thickness at the fore-edge
-FLIP_ANGLES = [42, 74, 104, 136]  # loose pages, degrees up from the right block
-FLIP_BEND = -38           # degrees each loose page curls along its width
+FLIP_COUNT = 12           # loose pages mid-flip
+FLIP_FROM, FLIP_TO = 18.5, 159.5  # fan of loose pages, degrees up from the right block
+FLIP_BEND = -19           # degrees each loose page curls outward along its width
 
 # ---- Palette (matches css/styles.css) ------------------------------------
 BG, SURFACE, PAGE, LINE, MUTED = '#0a0a0a', '#141414', '#1b1b1b', '#f5f5f5', '#8c8c8c'
@@ -55,8 +56,14 @@ def project(p):
     return (SCALE * x * k, -SCALE * k * (y * math.sin(ELEV) + z * math.cos(ELEV)))
 
 
+# Quads are drawn layer by layer, and back to front within a layer. The page
+# blocks are layer 0; each loose page gets its own layer above them.
+current_layer = 0
+
+
 class Quad:
     def __init__(self, corners, fill, lines=()):
+        self.layer = current_layer
         self.corners = corners          # 3D points
         self.fill = fill
         self.lines = list(lines)        # (points, style class)
@@ -70,7 +77,7 @@ def lerp(a, b, t):
     return a + (b - a) * t
 
 
-def sheet(curve, fill, rows, outline_u0=False, outline_u1=True, text_from=0.14, text_to=0.88):
+def sheet(curve, fill, rows, outline_u0=False, outline_u1=True, text_from=0.14, text_to=0.88, outline='o'):
     """A surface swept along y from a cross-section curve(u) -> (x, z).
 
     Split into NU x NY quads. Printed lines, the top/bottom page edges, and
@@ -83,13 +90,13 @@ def sheet(curve, fill, rows, outline_u0=False, outline_u1=True, text_from=0.14, 
             y0, y1 = D * j / NY, D * (j + 1) / NY
             lines = []
             if j == 0:
-                lines.append(([(xa, 0, za), (xb, 0, zb)], 'o'))
+                lines.append(([(xa, 0, za), (xb, 0, zb)], outline))
             if j == NY - 1:
-                lines.append(([(xa, D, za), (xb, D, zb)], 'o'))
+                lines.append(([(xa, D, za), (xb, D, zb)], outline))
             if i == 0 and outline_u0:
-                lines.append(([(xa, y0, za), (xa, y1, za)], 'o'))
+                lines.append(([(xa, y0, za), (xa, y1, za)], outline))
             if i == NU - 1 and outline_u1:
-                lines.append(([(xb, y0, zb), (xb, y1, zb)], 'o'))
+                lines.append(([(xb, y0, zb), (xb, y1, zb)], outline))
             for r in rows:
                 y = r * D
                 if y0 <= y < y1:
@@ -101,6 +108,15 @@ def sheet(curve, fill, rows, outline_u0=False, outline_u1=True, text_from=0.14, 
             quads.append(Quad([(xa, y0, za), (xb, y0, zb), (xb, y1, zb), (xa, y1, za)], fill, lines))
 
 
+def faces_camera(point, normal):
+    """True if a flat face at point, pointing along normal, is turned toward the camera."""
+    px, py, pz = world(*point)
+    nx, ny, nz = normal
+    nx, ny = nx * math.cos(YAW) - ny * math.sin(YAW), nx * math.sin(YAW) + ny * math.cos(YAW)
+    cam = (0, -DIST * math.cos(ELEV), DIST * math.sin(ELEV))
+    return nx * (cam[0] - px) + ny * (cam[1] - py) + nz * (cam[2] - pz) > 0
+
+
 def block_faces(side):
     """Bottom face and fore-edge of one page block, with page-edge lines."""
     for i in range(NU):
@@ -110,6 +126,8 @@ def block_faces(side):
         edges = [([(xa, 0, za * k), (xb, 0, zb * k)], 'e') for k in (0.2, 0.4, 0.6, 0.8)]
         quads.append(Quad([(xa, 0, 0), (xb, 0, 0), (xb, 0, zb), (xa, 0, za)], BG, edges))
     x, top = side * W, block_top(1)
+    if not faces_camera((x, D / 2, top / 2), (side, 0, 0)):
+        return
     for j in range(NY):
         y0, y1 = D * j / NY, D * (j + 1) / NY
         edges = [([(x, y0, top * k), (x, y1, top * k)], 'e') for k in (0.2, 0.4, 0.6, 0.8)]
@@ -119,6 +137,8 @@ def block_faces(side):
 
 def flipping_page(angle_deg):
     """A loose page hinged at the spine, curling as it turns."""
+    # Pages curl outward, away from upright, so neighbours never cross
+    bend = FLIP_BEND if angle_deg < 90 else -FLIP_BEND
     base_z = block_top(0)
     steps = 200
 
@@ -126,12 +146,16 @@ def flipping_page(angle_deg):
         x, z = 0.0, base_z
         n = int(u * steps)
         for k in range(n):
-            phi = math.radians(angle_deg + FLIP_BEND * (k + 0.5) / steps)
+            phi = math.radians(angle_deg + bend * (k + 0.5) / steps)
             x += math.cos(phi) * W / steps
             z += math.sin(phi) * W / steps
+        # Pages near flat drape over the page block instead of passing through it
+        if abs(x) <= W:
+            z = max(z, block_top(abs(x) / W) + 0.008)
         return (x, z)
 
-    sheet(curve, PAGE, ROWS[::2], text_from=0.16, text_to=0.84)
+    # Loose pages sit too close together for printed lines to read cleanly
+    sheet(curve, PAGE, [], outline='l')
 
 
 # Page blocks: their top surfaces and visible faces
@@ -139,7 +163,10 @@ sheet(lambda u: (-u * W, block_top(u)), SURFACE, ROWS)
 sheet(lambda u: (u * W, block_top(u)), SURFACE, ROWS)
 block_faces(-1)
 block_faces(1)
-for a in FLIP_ANGLES:
+# Seen from above, pages leaning furthest from upright sit behind the others,
+# so draw the fan from its outer pages inward.
+angles = [FLIP_FROM + (FLIP_TO - FLIP_FROM) * i / (FLIP_COUNT - 1) for i in range(FLIP_COUNT)]
+for current_layer, a in enumerate(sorted(angles, key=lambda a: -abs(a - 90)), start=1):
     flipping_page(a)
 
 # Cover board sits under everything, so it is drawn first
@@ -173,10 +200,18 @@ def emit(cls, d):
 for corners, fill in cover:
     emit('c' + FILLS[fill], d_attr(corners, True))
 
-for q in sorted(quads, key=lambda q: -q.depth):
-    emit(FILLS[q.fill], d_attr(q.corners, True))
-    for points, cls in q.lines:
-        emit(cls, d_attr(points, False))
+# Within each layer, draw every fill before any line. Otherwise the seam-hiding
+# strokes of later quads clip the ends of earlier lines into dashes.
+for layer in sorted({q.layer for q in quads}):
+    layer_quads = sorted((q for q in quads if q.layer == layer), key=lambda q: -q.depth)
+    for q in layer_quads:
+        emit(FILLS[q.fill], d_attr(q.corners, True))
+    for q in layer_quads:
+        for points, cls in q.lines:
+            emit(cls, d_attr(points, False))
+
+# Spine line down the centre of the fan, drawn over the loose pages
+emit('l', d_attr([(0, 0, block_top(0)), (0, D, block_top(0))], False))
 
 xs, ys = [p[0] for p in pts], [p[1] for p in pts]
 pad = 8
@@ -187,8 +222,8 @@ style = (
     f'.b{{fill:{BG};stroke:{BG}}}.s{{fill:{SURFACE};stroke:{SURFACE}}}.p{{fill:{PAGE};stroke:{PAGE}}}'
     f'.b,.s,.p{{stroke-width:.8}}'
     f'.cs{{fill:{SURFACE}}}.cw{{fill:{LINE}}}.cs,.cw,.o{{stroke:{LINE};stroke-width:1.5}}'
-    f'.t{{stroke:{MUTED};stroke-width:1}}.e{{stroke:{MUTED};stroke-width:.7}}'
-    '.o,.t,.e{fill:none}'
+    f'.l{{stroke:{LINE};stroke-width:1}}.t{{stroke:{MUTED};stroke-width:1}}.e{{stroke:{MUTED};stroke-width:.7}}'
+    '.o,.l,.t,.e{fill:none}'
 )
 body = '\n'.join(f'<path class="{cls}" d="{"".join(ds)}"/>' for cls, ds in out)
 svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{x0:.0f} {y0:.0f} {w:.0f} {h:.0f}" '
