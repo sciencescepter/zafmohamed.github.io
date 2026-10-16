@@ -468,10 +468,38 @@ body {
 }
 
 /* Book cards */
+.book-card { padding: 1.75rem; }
+
 .book-author {
     color: var(--muted);
     font-size: 0.85rem;
-    margin-bottom: 1rem;
+}
+
+.book-author + .card-text { margin-top: 1rem; }
+
+.book-card.is-favourite { border-color: var(--border-strong); }
+
+.book-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.9rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-pill);
+    background: var(--text);
+    color: var(--bg);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.book-count {
+    margin-left: 0.6rem;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--muted);
+    vertical-align: middle;
 }
 
 .empty-state {

@@ -12,25 +12,33 @@ function el(tag, className, text) {
 }
 
 function renderBookCard(book) {
-    const card = el('article', 'card fade-up');
-    card.append(
-        el('h3', 'card-title', book.title),
-        el('p', 'book-author', book.author),
-        el('p', 'card-text', book.note)
-    );
+    const card = el('article', book.favourite ? 'card book-card is-favourite fade-up' : 'card book-card fade-up');
+    if (book.favourite) {
+        const badge = el('span', 'book-badge', 'Favourite');
+        badge.prepend(el('span', 'book-badge-star', '★'));
+        card.append(badge);
+    }
+    card.append(el('h3', 'card-title', book.title), el('p', 'book-author', book.author));
+    if (book.note) card.append(el('p', 'card-text', book.note));
     return card;
 }
 
 if (BOOKS.length === 0) {
     emptyState.hidden = false;
 } else {
-    const categories = [...new Set(BOOKS.map((book) => book.category))];
+    const extra = BOOKS.map((book) => book.category).filter((c) => !CATEGORIES.includes(c));
+    const categories = [...new Set([...CATEGORIES, ...extra])];
 
     categories.forEach((category) => {
-        const grid = el('div', 'grid');
-        BOOKS.filter((book) => book.category === category)
-            .forEach((book) => grid.append(renderBookCard(book)));
+        const books = BOOKS.filter((book) => book.category === category)
+            .sort((a, b) => Number(Boolean(b.favourite)) - Number(Boolean(a.favourite)));
+        if (books.length === 0) return;
 
-        bookList.append(el('h2', 'subsection-title fade-up', category), grid);
+        const grid = el('div', 'grid');
+        books.forEach((book) => grid.append(renderBookCard(book)));
+
+        const heading = el('h2', 'subsection-title fade-up', category);
+        heading.append(el('span', 'book-count', String(books.length)));
+        bookList.append(heading, grid);
     });
 }
